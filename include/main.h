@@ -54,6 +54,13 @@ extern "C" {
 // actual code. If a function does not match a prototype, compile errors will occur.
 
 // Prototypes for initialization, operator control and autonomous
+#define FRONT_RIGHT 2
+#define FRONT_LEFT 3
+#define BACK_RIGHT 4
+#define BACK_LEFT 5
+
+extern Encoder leftEncoder;
+extern Encoder rightEncoder;
 
 /**
  * Runs the user autonomous code. This function will be started in its own task with the default

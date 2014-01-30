@@ -52,7 +52,33 @@
  * This task should never exit; it should end with some kind of infinite loop, even if empty.
  */
 void operatorControl() {
+
+	//Create "deadzone" variables. Adjust threshold value to increase/decrease deadzone
+	int X2 = 0, Y1 = 0, X1 = 0, threshold = 15;
+
 	while (1) {
+		//Create "deadzone" for Y1/Ch3
+		if(abs(joystickGetAnalog(1, 3)) > threshold)
+			Y1 = joystickGetAnalog(1, 3);
+		else
+			Y1 = 0;
+		//Create "deadzone" for X1/Ch4
+		if(abs(joystickGetAnalog(1, 4)) > threshold)
+			X1 = joystickGetAnalog(1, 4);
+		else
+			X1 = 0;
+		//Create "deadzone" for X2/Ch1
+		if(abs(joystickGetAnalog(1, 1)) > threshold)
+			X2 = joystickGetAnalog(1, 1);
+		else
+			X2 = 0;
+
+		//Remote Control Commands
+		motorSet(FRONT_RIGHT, Y1 - X2 - X1);
+		motorSet(BACK_RIGHT, Y1 - X2 + X1);
+		motorSet(FRONT_LEFT, Y1 + X2 + X1);
+		motorSet(BACK_LEFT, Y1 + X2 - X1);
+
 		delay(20);
 	}
 }
