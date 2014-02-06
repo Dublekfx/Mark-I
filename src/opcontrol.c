@@ -79,6 +79,7 @@ void operatorControl() {
 		motorSet(FRONT_LEFT, Y1 + X2 + X1);
 		motorSet(BACK_LEFT, Y1 + X2 - X1);
 
+
 		delay(20);
 	}
 }
