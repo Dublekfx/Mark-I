@@ -49,4 +49,27 @@
  * so, the robot will await a switch to another mode or disable/enable cycle.
  */
 void autonomous() {
+
+}
+
+void driveStraight(int inches) {
+	// 393 motors in high-speed mode (gear ratio 1.6 : 1) 392 ticks/revolution
+	int targetDistance = inches;
+	int imeFR, imeFL, imeBR, imeBL;
+
+
+	imeGet(IME_FRONT_RIGHT, &imeFR);
+	imeGet(IME_FRONT_LEFT, &imeFL);
+	imeGet(IME_BACK_RIGHT, &imeBR);
+	imeGet(IME_BACK_LEFT, &imeBL);
+
+
+}
+
+void driveStrafe(int inches) {
+
+}
+
+void driveTurn(int degrees) {
+
 }

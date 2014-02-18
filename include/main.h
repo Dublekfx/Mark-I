@@ -59,6 +59,20 @@ extern "C" {
 #define BACK_RIGHT 4
 #define BACK_LEFT 5
 
+#define IME_FRONT_RIGHT 0
+#define IME_FRONT_LEFT 1
+#define IME_BACK_RIGHT 2
+#define IME_BACK_LEFT 3
+
+#define LOWER_RIGHT_PISTON 0
+#define LOWER_LEFT_PISTON 1
+#define UPPER_RIGHT_PISTON 2
+#define UPPER_LEFT_PISTON 3
+#define LOCK_RIGHT_PISTON 4
+#define LOCK_LEFT_PISTON 5
+
+
+
 /**
  * Runs the user autonomous code. This function will be started in its own task with the default
  * priority and stack size whenever the robot is enabled via the Field Management System or the

@@ -74,11 +74,10 @@ void operatorControl() {
 			X2 = 0;
 
 		//Remote Control Commands
-		motorSet(FRONT_RIGHT, Y1 - X2 - X1);
+		motorSet(FRONT_RIGHT, (Y1 - X2 - X1));
 		motorSet(BACK_RIGHT, Y1 - X2 + X1);
-		motorSet(FRONT_LEFT, Y1 + X2 + X1);
+		motorSet(FRONT_LEFT, -(Y1 + X2 + X1));
 		motorSet(BACK_LEFT, Y1 + X2 - X1);
-
 
 		delay(20);
 	}
