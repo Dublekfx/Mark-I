@@ -183,7 +183,7 @@ void startPidTask(void *ignore) {
 			MOTARMFront.out = PidARMFront.output;
 		}
 
-				printf("Setpoint: %d|%d, IME: %d|%d, Adj: %d|%d, Out: %d|%d\n\r",
+				printf("Setpoint: %d|%d, Raw: %d|%d, Adj: %d|%d, Out: %d|%d\n\r",
 						PidARMLeft.setPoint, PidARMRight.setPoint,
 						EncARMLeft.rawValue, EncARMRight.rawValue,
 						EncARMLeft.adjustedValue, EncARMRight.adjustedValue,
