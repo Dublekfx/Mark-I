@@ -3,7 +3,7 @@
  *
  * This file should contain the user operatorControl() function and any functions related to it.
  *
- * Copyright (c) 2011-2013, Purdue University ACM SIG BOTS.
+ * Copyright (c) 2011-2014, Purdue University ACM SIG BOTS.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,33 +53,53 @@
  */
 void operatorControl() {
 
-	//Create "deadzone" variables. Adjust threshold value to increase/decrease deadzone
-	int X2 = 0, Y1 = 0, X1 = 0, threshold = 15;
-
 	while (1) {
-		//Create "deadzone" for Y1/Ch3
-		if(abs(joystickGetAnalog(1, 3)) > threshold)
-			Y1 = joystickGetAnalog(1, 3);
-		else
-			Y1 = 0;
-		//Create "deadzone" for X1/Ch4
-		if(abs(joystickGetAnalog(1, 4)) > threshold)
-			X1 = joystickGetAnalog(1, 4);
-		else
-			X1 = 0;
-		//Create "deadzone" for X2/Ch1
-		if(abs(joystickGetAnalog(1, 1)) > threshold)
-			X2 = joystickGetAnalog(1, 1);
-		else
-			X2 = 0;
+		getJoystickForDriveTrain();
 
-		//Remote Control Commands
-		motorSet(FRONT_RIGHT, Y1 - X2 - X1);
-		motorSet(BACK_RIGHT, Y1 - X2 + X1);
-		motorSet(FRONT_LEFT, Y1 + X2 + X1);
-		motorSet(BACK_LEFT, Y1 + X2 - X1);
+		if(joystickGetDigital(1, 6, JOY_UP)) {
+			PidARMLeft.setPoint += 10;
+			PidARMRight.setPoint += 10;
+//			MOTARMBottomLeft.out = 127;
+//			MOTARMBottomRight.out = 127;
+		}
+		else if(joystickGetDigital(1, 6, JOY_DOWN)) {
+			PidARMLeft.setPoint -= 5;
+			PidARMRight.setPoint -= 5;
+//			MOTARMBottomLeft.out = -127;
+//			MOTARMBottomRight.out = -127;
+		}
+		else {
+//			MOTARMBottomLeft.out = 0;
+//			MOTARMBottomRight.out = 0;
+		}
+		if(joystickGetDigital(1, 8, JOY_UP)) {
+			PidARMLeft.setPoint = EncARMLeft.adjustedValue;
+			PidARMRight.setPoint = EncARMRight.adjustedValue;
+			PidARMFront.setPoint = PotARMFront.value;
+		}
+		if(joystickGetDigital(1, 8, JOY_DOWN))	{
+			imeReset(IMEARMLEFT);
+			imeReset(IMEARMRIGHT);
+			PidARMLeft.setPoint = 0;
+			PidARMRight.setPoint = 0;
+		}
 
+		if(joystickGetDigital(1, 7, JOY_UP)) {
+			MOTCOL.out = 127;
+		}
+		else if(joystickGetDigital(1, 7, JOY_DOWN)) {
+			MOTCOL.out = -127;
+		}
+		else {
+			MOTCOL.out = 0;
+		}
 
+		if(joystickGetDigital(1, 5, JOY_UP)) {
+			PidARMFront.setPoint += 10;
+		}
+		else if(joystickGetDigital(1, 5, JOY_DOWN)) {
+			PidARMFront.setPoint -= 10;
+		}
 		delay(20);
 	}
 }
