@@ -68,30 +68,31 @@ void initialize() {
 
 	riceBotInitialize();
 
-	MOTDTFrontLeft = initMotor(2, 1);
+	MOTDTFrontLeft = initMotor(6, 1);
 	MOTDTFrontRight = initMotor(7, 1);
 	MOTDTBackLeft = initMotor(3, -1);
 	MOTDTBackRight = initMotor(9, -1);
 
-	MOTARMFront = initMotor(4, 1);
+	MOTARMFront = initMotor(5, 1);
 	MOTARMBottomLeft = initMotor(8, -1);
-	MOTARMBottomRight = initMotor(5, -1);
+	MOTARMBottomRight = initMotor(4, -1);
 
-	MOTCOL = initMotor(6, 1);
+	MOTCOL = initMotor(2, -1);
 
-	EncARMLeft = initRicencoder(627.2, 1, 1, 0, 0, NULL, 0);
-	EncARMRight = initRicencoder(627.2, 1, 1, 1, 0, NULL, 0);
+	EncARMLeft = initRicencoder(627.2, 1, 1, 0, 0, NULL, false);
+	EncARMRight = initRicencoder(627.2, 1, 1, 1, 0, NULL, true);
+
+	EncARMLeft = initRicencoder(627.2, 1, 1, 0, 0, NULL, false);
+	EncARMRight = initRicencoder(627.2, 1, 1, 1, 0, NULL, true);
 	PotARMFront = initRicepot(1);
 
-//	gyro = initRicegyro(1, 1);
+	gyro = initRicegyro(2, 1);
 
 	printf("Preparing IMEs...\n\r");
 	printf("IME Count: %d\n\r", imeInitializeAll());
-	imeReset(IMEARMLEFT);
-	imeReset(IMEARMRIGHT);
 
-	PidARMLeft = initPid(.3, 0, 0);
-	PidARMRight = initPid(.3, 0, 0);
+	PidARMLeft = initPid(.2, 0, 0);
+	PidARMRight = initPid(.2, 0, 0);
 	PidARMFront = initPid(.3, 0, 0);
 	PidARMLeft.running = 1;
 	PidARMRight.running = 1;
@@ -99,7 +100,6 @@ void initialize() {
 
 	taskCreate(startIOTask, TASK_DEFAULT_STACK_SIZE, NULL, TASK_PRIORITY_HIGHEST);
 	taskCreate(startPidTask, TASK_DEFAULT_STACK_SIZE, NULL, TASK_PRIORITY_DEFAULT);
-
 }
 void startIOTask(void *ignore) {
 	while(1) {
@@ -121,48 +121,48 @@ void startIOTask(void *ignore) {
 		motorSet(MOTCOLLeft.port, MOTCOLLeft.out * MOTCOLLeft.reflected);
 		motorSet(MOTCOLRight.port, MOTCOLRight.out * MOTCOLRight.reflected);
 
-		PotARMFront.value = -analogReadCalibrated(PotARMFront.port);
+		PotARMFront.value = analogReadCalibrated(PotARMFront.port);
 		PotARMLeft.value = analogReadCalibrated(PotARMLeft.port);
-		PotARMRight.value = -analogReadCalibrated(PotARMRight.port);
+		PotARMRight.value = analogReadCalibrated(PotARMRight.port);
 
-		updateRicencoder(&EncDTLeft);
+		updateRicencoder(&EncARMLeft);
 		updateRicencoder(&EncARMRight);
 		updateRicencoder(&EncDTLeft);
 		updateRicencoder(&EncDTRight);
 
 //		updateRicegyro(gyro);
 
-		if(!isEnabled() | !isJoystickConnected(1)) {
-			MOTDTFrontLeft.out = 0;
-			MOTDTFrontMidLeft.out = 0;
-			MOTDTMidLeft.out = 0;
-			MOTDTBackLeft.out = 0;
-
-			MOTDTFrontRight.out = 0;
-			MOTDTFrontMidRight.out = 0;
-			MOTDTMidRight.out = 0;
-			MOTDTBackRight.out = 0;
-
-			motorSet(MOTARMFront.port, 0);
-			motorSet(MOTARMBack.port, 0);
-			motorSet(MOTARMTop.port, 0);
-			motorSet(MOTARMMiddle.port, 0);
-			motorSet(MOTARMBottom.port, 0);
-			motorSet(MOTARMLeft.port, 0);
-			motorSet(MOTARMRight.port, 0);
-			motorSet(MOTARMTopLeft.port, 0);
-			motorSet(MOTARMTopRight.port, 0);
-			motorSet(MOTARMBottomLeft.port, 0);
-			motorSet(MOTARMBottomRight.port, 0);
-
-			motorSet(MOTCOL.port, 0);
-			motorSet(MOTCOLLeft.port, 0);
-			motorSet(MOTCOLRight.port, 0);
-
-			PidARMLeft.setPoint = EncARMLeft.adjustedValue;
-			PidARMRight.setPoint = EncARMRight.adjustedValue;
-			PidARMFront.setPoint = PotARMFront.value;
-		}
+//		if(!isEnabled() | !isJoystickConnected(1)) {
+//			MOTDTFrontLeft.out = 0;
+//			MOTDTFrontMidLeft.out = 0;
+//			MOTDTMidLeft.out = 0;
+//			MOTDTBackLeft.out = 0;
+//
+//			MOTDTFrontRight.out = 0;
+//			MOTDTFrontMidRight.out = 0;
+//			MOTDTMidRight.out = 0;
+//			MOTDTBackRight.out = 0;
+//
+//			motorSet(MOTARMFront.port, 0);
+//			motorSet(MOTARMBack.port, 0);
+//			motorSet(MOTARMTop.port, 0);
+//			motorSet(MOTARMMiddle.port, 0);
+//			motorSet(MOTARMBottom.port, 0);
+//			motorSet(MOTARMLeft.port, 0);
+//			motorSet(MOTARMRight.port, 0);
+//			motorSet(MOTARMTopLeft.port, 0);
+//			motorSet(MOTARMTopRight.port, 0);
+//			motorSet(MOTARMBottomLeft.port, 0);
+//			motorSet(MOTARMBottomRight.port, 0);
+//
+//			motorSet(MOTCOL.port, 0);
+//			motorSet(MOTCOLLeft.port, 0);
+//			motorSet(MOTCOLRight.port, 0);
+//
+//			PidARMLeft.setPoint = EncARMLeft.adjustedValue;
+//			PidARMRight.setPoint = EncARMRight.adjustedValue;
+//			PidARMFront.setPoint = PotARMFront.value;
+//		}
 		delay(10);
 	}
 }
@@ -183,12 +183,13 @@ void startPidTask(void *ignore) {
 			MOTARMFront.out = PidARMFront.output;
 		}
 
-				printf("Setpoint: %d|%d, Raw: %d|%d, Adj: %d|%d, Out: %d|%d\n\r",
-						PidARMLeft.setPoint, PidARMRight.setPoint,
-						EncARMLeft.rawValue, EncARMRight.rawValue,
-						EncARMLeft.adjustedValue, EncARMRight.adjustedValue,
-						PidARMLeft.output, PidARMRight.output);
-//				printf("Setpoint: %d, Current: %d, Out: %d\n\r", PidARMFront.setPoint, PidARMFront.current, PidARMFront.output);
+		printf("Setpoint: %d|%d, Raw: %d|%d, Adj: %d|%d, Out: %d|%d, Pid: %d|%d\n\r",
+				PidARMLeft.setPoint, PidARMRight.setPoint,
+				EncARMLeft.rawValue, EncARMRight.rawValue,
+				EncARMLeft.adjustedValue, EncARMRight.adjustedValue,
+				MOTARMBottomLeft.out, MOTARMBottomRight.out,
+				PidARMLeft.running, PidARMRight.running);
+//		printf("Setpoint: %d, Current: %d, Out: %d\n\r", PidARMFront.setPoint, PidARMFront.current, MOTARMFront.out);
 //		printf("Power: %dmV\n\r", powerLevelMain());
 		delay(20);
 	}

@@ -65,7 +65,7 @@ Pid initPid(float kP, float kI, float kD) {
  * @param imeAddress The address of the IME, in order of the chain from the Cortex. Starts at 0
  * @param portTop (If not IME) The port on the Cortex which the top wire of the encoder is plugged into
  * @param portBot (If not IME) The port on the Cortex which the bottom wire of the encoder is plugged into
- * @param reverse (If not IME) Whether the QuadEncoder should count in the reverse direction
+ * @param reverse Whether the Ricencoder should count in the reverse direction
  *
  * @return The initialized and configured Ricencoder
  */
@@ -80,6 +80,7 @@ Ricencoder initRicencoder(float ticksPerRev, int mult, int isIME, unsigned char 
 	r->imeAddress = imeAddress;
 	r->portTop = portTop;
 	r->portBot = portBot;
+	r->reverse = reverse;
 	if(!isIME) {
 		r->enc = encoderInit(portTop, portBot, reverse);
 	}
@@ -258,7 +259,12 @@ void updateRicencoder(Ricencoder *rc) {
 	else {
 		rc->rawValue = encoderGet(rc->enc);
 	}
-	rc->adjustedValue = rc->rawValue * rc->mult;
+	if(rc->reverse) {
+		rc->adjustedValue = rc->rawValue * rc->mult * -1;
+	}
+	else {
+		rc->adjustedValue = rc->rawValue * rc->mult;
+	}
 }
 
 /*
