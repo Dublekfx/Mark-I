@@ -43,6 +43,24 @@
  * configure a UART port (usartOpen()) but cannot set up an LCD (lcdInit()).
  */
 void initializeIO() {
+	digitalWrite(LOWER_RIGHT_PISTON, LOW);
+	pinMode(LOWER_RIGHT_PISTON, OUTPUT);
+
+	digitalWrite(LOWER_LEFT_PISTON, LOW);
+	pinMode(LOWER_LEFT_PISTON, OUTPUT);
+
+	digitalWrite(UPPER_RIGHT_PISTON, LOW);
+	pinMode(UPPER_RIGHT_PISTON, OUTPUT);
+
+	digitalWrite(UPPER_LEFT_PISTON, LOW);
+	pinMode(UPPER_LEFT_PISTON, OUTPUT);
+
+	digitalWrite(LOCK_RIGHT_PISTON, LOW);
+	pinMode(LOCK_RIGHT_PISTON, OUTPUT);
+
+	digitalWrite(LOCK_LEFT_PISTON, LOW);
+	pinMode(LOCK_LEFT_PISTON, OUTPUT);
+
 }
 
 /*
@@ -193,4 +211,5 @@ void startPidTask(void *ignore) {
 //		printf("Power: %dmV\n\r", powerLevelMain());
 		delay(20);
 	}
+	int imeCount = imeInitializeAll();
 }

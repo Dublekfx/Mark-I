@@ -112,7 +112,6 @@ void operatorControl() {
 			printf("IME Hard Reset\n\r");
 			imeReset(EncARMLeft.imeAddress);
 			imeReset(EncARMRight.imeAddress);
-
 			PidARMLeft.setPoint = 0;
 			PidARMRight.setPoint = 0;
 		}
