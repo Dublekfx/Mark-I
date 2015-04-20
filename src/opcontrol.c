@@ -53,103 +53,179 @@
  */
 void operatorControl() {
 
-	imeReset(EncARMLeft.imeAddress);
-	imeReset(EncARMRight.imeAddress);
-	updateRicencoder(&EncARMLeft);
-	updateRicencoder(&EncARMRight);
-//	delay(500);
-//	PidARMLeft.setPoint = 0;
-//	PidARMRight.setPoint = 0;
+	resetRicencoder();
+	PidARMLeft->setPoint = EncARMLeft->adjustedValue;
+	PidARMRight->setPoint = EncARMRight->adjustedValue;
+
+	bool secondJoy = true;
 
 	while (1) {
 		getJoystickForDriveTrain();
 
-		if(joystickGetDigital(1, 6, JOY_UP)) {
-			PidARMLeft.running = 0;
-			PidARMRight.running = 0;
-//			if(PidARMLeft.running == 1 && PidARMRight.running == 1) {
-//				printf("Pid Setpoint Up!\n\r");
-//				PidARMLeft.setPoint += 10;
-//				PidARMRight.setPoint += 10;
-//			}
-//			else {
-				MOTARMBottomLeft.out = 127;
-				MOTARMBottomRight.out = 127;
-//			}
-		}
-		else if(joystickGetDigital(1, 6, JOY_DOWN)) {
-			PidARMLeft.running = 0;
-			PidARMRight.running = 0;
-//			if(PidARMLeft.running == 1 && PidARMRight.running == 1) {
-//				printf("Pid Setpoint Down!\n\r");
-//				PidARMLeft.setPoint -= 5;
-//				PidARMRight.setPoint -= 5;
-//			}
-//			else {
-				MOTARMBottomLeft.out = -127;
-				MOTARMBottomRight.out = -127;
-//			}
-		}
-		else {
-			if(PidARMLeft.running == 0 && PidARMRight.running == 0) {
-				PidARMLeft.setPoint = EncARMLeft.adjustedValue + 60;
-				PidARMRight.setPoint = EncARMRight.adjustedValue + 60;
+		if(secondJoy) {
+			//SecondJoy control
+			if(joystickGetDigital(1, 8, JOY_UP)) {
+				secondJoy = false;
 			}
-			PidARMLeft.running = 1;
-			PidARMRight.running = 1;
-//			if(PidARMLeft.running == 0 && PidARMRight.running == 0) {
-//				MOTARMBottomLeft.out = 0;
-//				MOTARMBottomRight.out = 0;
-//			}
-		}
-		if(joystickGetDigital(1, 8, JOY_UP)) {
-			printf("IME Soft Reset\n\r");
-			PidARMLeft.setPoint = EncARMLeft.adjustedValue;
-			PidARMRight.setPoint = EncARMRight.adjustedValue;
-			PidARMFront.setPoint = PotARMFront.value;
-		}
-		if(joystickGetDigital(1, 8, JOY_DOWN))	{
-			printf("IME Hard Reset\n\r");
-			imeReset(EncARMLeft.imeAddress);
-			imeReset(EncARMRight.imeAddress);
-			PidARMLeft.setPoint = 0;
-			PidARMRight.setPoint = 0;
-		}
+			if(joystickGetDigital(2, 8, JOY_UP)) {
+				secondJoy = false;
+			}
+			//Arm Elevation
+			if(abs(joystickGetAnalog(2, 3)) > 10) {
+				PidARMLeft->running = 0;
+				PidARMRight->running = 0;
+				MOTARMLeft->out = joystickGetAnalog(2, 3);
+				MOTARMRight->out = joystickGetAnalog(2, 3);
+			}
+			else {
+				if(PidARMLeft->running == 0 && PidARMRight->running == 0) {
+					PidARMLeft->setPoint = EncARMLeft->adjustedValue + 60;
+					PidARMRight->setPoint = EncARMRight->adjustedValue + 60;
+				}
+				PidARMLeft->running = 1;
+				PidARMRight->running = 1;
+			}
 
+			//Arm Left and Right
+			if(abs(joystickGetAnalog(2, 1)) > 10) {
+				//				printf("Joy to the world: %d\n\r", joystickGetAnalog(2, 1));
+				MOTARMFront->out = joystickGetAnalog(2, 1);
+				if(joystickGetAnalog(2, 1) < 0) {
+					MOTConveyor->out = joystickGetAnalog(2, 1);
+					//					printf("MOTConveyor: %d\n\r", )
+				}
+				else if(joystickGetAnalog(2, 1) > 0) {
+					MOTConveyor->out = joystickGetAnalog(2, 1);
+				}
+			}
+			else {
+				MOTConveyor->out = 0;
+				MOTARMFront->out = 0;
+			}
+			//FEAR THE CLAW
+			if(joystickGetDigital(2, 6, JOY_UP)) {
+				MOTCLAW->out = 127;
+			}
+			else if(joystickGetDigital(2, 6, JOY_DOWN)) {
+				MOTCLAW->out = -127;
+			}
+			else {
+				MOTCLAW->out = 0;
+			}
+			//Manual Arm LR
+			if(abs(joystickGetAnalog(2, 1)) < 10) {
+				if(joystickGetDigital(2, 7, JOY_RIGHT)) {
+					MOTConveyor->out = 127;
+				}
+				else if(joystickGetDigital(2, 7, JOY_LEFT)) {
+					MOTConveyor->out = -127;
+				}
+				else {
+					MOTConveyor->out = 0;
+				}
+				if(joystickGetDigital(2, 8, JOY_RIGHT)) {
+					MOTARMFront->out = 127;
+				}
+				else if(joystickGetDigital(2, 8, JOY_LEFT)) {
+					MOTARMFront->out = -127;
+				}
+				else {
+					MOTARMFront->out = 0;
+				}
+			}
+			if(joystickGetDigital(1, 6, JOY_UP)) {
+				MOTCOL->out = 127;
+			}
+			else if(joystickGetDigital(1, 6, JOY_DOWN)) {
+				MOTCOL->out = -127;
+			}
+			else {
+				MOTCOL->out = 0;
+			}
+		}
+		else {
+			if(joystickGetDigital(2, 8, JOY_DOWN)) {
+				secondJoy = true;
+			}
+			if(joystickGetDigital(1, 8, JOY_DOWN)) {
+				secondJoy = true;
+			}
+
+			if(joystickGetDigital(1, 6, JOY_UP)) {
+				PidARMLeft->running = 0;
+				PidARMRight->running = 0;
+				MOTARMLeft->out = 127;
+				MOTARMRight->out = 127;
+			}
+			else if(joystickGetDigital(1, 6, JOY_DOWN) && ButARMBase->state != LOW) {
+				PidARMLeft->running = 0;
+				PidARMRight->running = 0;
+				MOTARMLeft->out = -127;
+				MOTARMRight->out = -127;
+			}
+			else {
+				if(PidARMLeft->running == 0 && PidARMRight->running == 0) {
+					PidARMLeft->setPoint = EncARMLeft->adjustedValue + 60;
+					PidARMRight->setPoint = EncARMRight->adjustedValue + 60;
+				}
+				PidARMLeft->running = 1;
+				PidARMRight->running = 1;
+			}
+			//			if(ButARMBase->state == LOW) {
+			//				MOTARMLeft->out = 0;
+			//				MOTARMRight->out = 0;
+			//			}
+
+			if(joystickGetDigital(1, 5, JOY_UP)) {
+				MOTCLAW->out = 127;
+			}
+			else if(joystickGetDigital(1, 5, JOY_DOWN)) {
+				MOTCLAW->out = -127;
+			}
+			else {
+				MOTCLAW->out = 0;
+			}
+
+			//			if(joystickGetDigital(1, 7, JOY_LEFT)) {
+			//				if(ButConLeft->state == HIGH) {
+			//					MOTConveyor->out = -127;
+			//				}
+			//			}
+			//			else if(joystickGetDigital(1, 7, JOY_RIGHT)) {
+			//				if(ButConRight->state == HIGH) {
+			//					MOTConveyor->out = 127;
+			//				}
+			//			}
+			//			else {
+			//				MOTConveyor->out = 0;
+			//			}
+
+			if(joystickGetDigital(1, 7, JOY_LEFT)) {
+				MOTConveyor->out = -127;
+			}
+			else if(joystickGetDigital(1, 7, JOY_RIGHT)) {
+				MOTConveyor->out = 127;
+			}
+			else {
+				MOTConveyor->out = 0;
+			}
+			if(joystickGetDigital(1, 8, JOY_RIGHT)) {
+				MOTARMFront->out = 127;
+			}
+			else if(joystickGetDigital(1, 8, JOY_LEFT)) {
+				MOTARMFront->out = -127;
+			}
+			else {
+				MOTARMFront->out = 0;
+			}
+		}
+		if(joystickGetDigital(1, 7, JOY_DOWN)) {
+			resetRicencoder();
+			PidARMLeft->setPoint = EncARMLeft->adjustedValue;
+			PidARMRight->setPoint = EncARMRight->adjustedValue;
+		}
 		if(joystickGetDigital(1, 7, JOY_UP)) {
-			MOTCOL.out = 127;
-		}
-		else if(joystickGetDigital(1, 7, JOY_DOWN)) {
-			MOTCOL.out = -127;
-		}
-		else {
-			MOTCOL.out = 0;
-		}
-
-		if(joystickGetDigital(1, 5, JOY_UP)) {
-//			if(PidARMFront.running == 1) {
-//				PidARMFront.setPoint += 10;
-//			}
-//			else {
-				MOTARMFront.out = 127;
-//				motorSet(5, 127);
-//			}
-		}
-		else if(joystickGetDigital(1, 5, JOY_DOWN)) {
-//			if(PidARMFront.running == 1) {
-//				PidARMFront.setPoint -= 10;
-//			}
-//			else {
-//				printf("MOTARMFront Down!");
-				MOTARMFront.out = -127;
-//			motorSet(5, -127);
-//			}
-		}
-		else {
-//			if(PidARMFront.running == 0) {
-				MOTARMFront.out = 0;
-//			motorSet(5, 0);
-//			}
+			autonomous();
 		}
 		delay(20);
 	}

@@ -43,24 +43,6 @@
  * configure a UART port (usartOpen()) but cannot set up an LCD (lcdInit()).
  */
 void initializeIO() {
-	digitalWrite(LOWER_RIGHT_PISTON, LOW);
-	pinMode(LOWER_RIGHT_PISTON, OUTPUT);
-
-	digitalWrite(LOWER_LEFT_PISTON, LOW);
-	pinMode(LOWER_LEFT_PISTON, OUTPUT);
-
-	digitalWrite(UPPER_RIGHT_PISTON, LOW);
-	pinMode(UPPER_RIGHT_PISTON, OUTPUT);
-
-	digitalWrite(UPPER_LEFT_PISTON, LOW);
-	pinMode(UPPER_LEFT_PISTON, OUTPUT);
-
-	digitalWrite(LOCK_RIGHT_PISTON, LOW);
-	pinMode(LOCK_RIGHT_PISTON, OUTPUT);
-
-	digitalWrite(LOCK_LEFT_PISTON, LOW);
-	pinMode(LOCK_LEFT_PISTON, OUTPUT);
-
 }
 
 /*
@@ -77,139 +59,80 @@ void initializeIO() {
  * can be implemented in this task if desired.
  */
 void initialize() {
+	riceBotInitialize();
 
 	driveTrainStyle = DTFOURWHEELS;
 	controlStyle = CTCHEEZYDRIVE;
 
-//	IMEARMLEFT = 0;
-//	IMEARMRIGHT = 1;
+//	MOTDTFrontLeft = initRicemotor(9, 1);
+	MOTDTFrontRight = initRicemotor(8, -1);
+	MOTDTBackLeft = initRicemotor(3, 1);
+	MOTDTBackRight = initRicemotor(2, -1);
 
-	riceBotInitialize();
+	MOTARMLeft = initRicemotor(6, -1);
+	MOTARMRight = initRicemotor(5, -1);
 
-	MOTDTFrontLeft = initMotor(6, 1);
-	MOTDTFrontRight = initMotor(7, 1);
-	MOTDTBackLeft = initMotor(3, -1);
-	MOTDTBackRight = initMotor(9, -1);
+	MOTARMFront = initRicemotor(7, 1);
+	MOTConveyor = initRicemotor(4, 1);
+	MOTCLAW = initRicemotor(10, -1);
+	MOTCOL = initRicemotor(9, 1);
 
-	MOTARMFront = initMotor(5, 1);
-	MOTARMBottomLeft = initMotor(8, -1);
-	MOTARMBottomRight = initMotor(4, -1);
+	EncDTLeft = initRicencoderIME(627.2, 1, 0, false);
+	EncDTRight = initRicencoderIME(627.2, 1, 1, true);
 
-	MOTCOL = initMotor(2, -1);
+	EncARMLeft = initRicencoderIME(627.2, 1, 3, true);
+	EncARMRight = initRicencoderIME(627.2, 1, 2, false);
+	EncARMFront = initRicencoderIME(627.2, 1, 4, false);
 
-	EncARMLeft = initRicencoder(627.2, 1, 1, 0, 0, NULL, false);
-	EncARMRight = initRicencoder(627.2, 1, 1, 1, 0, NULL, true);
+//	ButConLeft = initRicebutton(2);
+//	ButConRight = initRicebutton(1);
+	ButARMBase = initRicebutton(4);
+//	ButARMFrontLeft = initRicebutton(5);
+//	ButARMFrontRight = initRicebutton(6);
 
-	EncARMLeft = initRicencoder(627.2, 1, 1, 0, 0, NULL, false);
-	EncARMRight = initRicencoder(627.2, 1, 1, 1, 0, NULL, true);
-	PotARMFront = initRicepot(1);
+	gyro = initRicegyro(1, 196);
 
-	gyro = initRicegyro(2, 1);
+	Ricemotor* armLeft[2] = {MOTARMLeft, MOTDefault};
+	Ricemotor* armRight[2] = {MOTARMRight, MOTDefault};
+	PidARMLeft = initRicepid(&(EncARMLeft->adjustedValue), .2, 0, 0, armLeft);
+	PidARMRight = initRicepid(&(EncARMRight->adjustedValue), .2, 0, 0, armRight);
+	PidARMLeft->running = 1;
+	PidARMRight->running = 1;
 
-	printf("Preparing IMEs...\n\r");
-	printf("IME Count: %d\n\r", imeInitializeAll());
+	delay(500);
 
-	PidARMLeft = initPid(.2, 0, 0);
-	PidARMRight = initPid(.2, 0, 0);
-	PidARMFront = initPid(.3, 0, 0);
-	PidARMLeft.running = 1;
-	PidARMRight.running = 1;
-	PidARMFront.running = 0;
-
-	taskCreate(startIOTask, TASK_DEFAULT_STACK_SIZE, NULL, TASK_PRIORITY_HIGHEST);
-	taskCreate(startPidTask, TASK_DEFAULT_STACK_SIZE, NULL, TASK_PRIORITY_DEFAULT);
-}
-void startIOTask(void *ignore) {
-	while(1) {
-		setDriveTrainMotors(DTFOURWHEELS);
-
-		motorSet(MOTARMFront.port, MOTARMFront.out * MOTARMFront.reflected);
-		motorSet(MOTARMBack.port, MOTARMBack.out * MOTARMBack.reflected);
-		motorSet(MOTARMTop.port, MOTARMTop.out * MOTARMTop.reflected);
-		motorSet(MOTARMMiddle.port, MOTARMMiddle.out * MOTARMMiddle.reflected);
-		motorSet(MOTARMBottom.port, MOTARMBottom.out * MOTARMBottom.reflected);
-		motorSet(MOTARMLeft.port, MOTARMLeft.out * MOTARMLeft.reflected);
-		motorSet(MOTARMRight.port, MOTARMRight.out * MOTARMRight.reflected);
-		motorSet(MOTARMTopLeft.port, MOTARMTopLeft.out * MOTARMTopLeft.reflected);
-		motorSet(MOTARMTopRight.port, MOTARMTopRight.out * MOTARMTopRight.reflected);
-		motorSet(MOTARMBottomLeft.port, MOTARMBottomLeft.out * MOTARMBottomLeft.reflected);
-		motorSet(MOTARMBottomRight.port, MOTARMBottomRight.out * MOTARMBottomRight.reflected);
-
-		motorSet(MOTCOL.port, MOTCOL.out * MOTCOL.reflected);
-		motorSet(MOTCOLLeft.port, MOTCOLLeft.out * MOTCOLLeft.reflected);
-		motorSet(MOTCOLRight.port, MOTCOLRight.out * MOTCOLRight.reflected);
-
-		PotARMFront.value = analogReadCalibrated(PotARMFront.port);
-		PotARMLeft.value = analogReadCalibrated(PotARMLeft.port);
-		PotARMRight.value = analogReadCalibrated(PotARMRight.port);
-
-		updateRicencoder(&EncARMLeft);
-		updateRicencoder(&EncARMRight);
-		updateRicencoder(&EncDTLeft);
-		updateRicencoder(&EncDTRight);
-
-//		updateRicegyro(gyro);
-
-//		if(!isEnabled() | !isJoystickConnected(1)) {
-//			MOTDTFrontLeft.out = 0;
-//			MOTDTFrontMidLeft.out = 0;
-//			MOTDTMidLeft.out = 0;
-//			MOTDTBackLeft.out = 0;
-//
-//			MOTDTFrontRight.out = 0;
-//			MOTDTFrontMidRight.out = 0;
-//			MOTDTMidRight.out = 0;
-//			MOTDTBackRight.out = 0;
-//
-//			motorSet(MOTARMFront.port, 0);
-//			motorSet(MOTARMBack.port, 0);
-//			motorSet(MOTARMTop.port, 0);
-//			motorSet(MOTARMMiddle.port, 0);
-//			motorSet(MOTARMBottom.port, 0);
-//			motorSet(MOTARMLeft.port, 0);
-//			motorSet(MOTARMRight.port, 0);
-//			motorSet(MOTARMTopLeft.port, 0);
-//			motorSet(MOTARMTopRight.port, 0);
-//			motorSet(MOTARMBottomLeft.port, 0);
-//			motorSet(MOTARMBottomRight.port, 0);
-//
-//			motorSet(MOTCOL.port, 0);
-//			motorSet(MOTCOLLeft.port, 0);
-//			motorSet(MOTCOLRight.port, 0);
-//
-//			PidARMLeft.setPoint = EncARMLeft.adjustedValue;
-//			PidARMRight.setPoint = EncARMRight.adjustedValue;
-//			PidARMFront.setPoint = PotARMFront.value;
-//		}
-		delay(10);
-	}
+	taskCreate(IOTask, TASK_DEFAULT_STACK_SIZE, NULL, TASK_PRIORITY_HIGHEST);
+	taskCreate(PidTask, TASK_DEFAULT_STACK_SIZE, NULL, TASK_PRIORITY_DEFAULT);
+	taskCreate(miscTask, TASK_DEFAULT_STACK_SIZE, NULL, TASK_PRIORITY_DEFAULT);
 }
 
-void startPidTask(void *ignore) {
+void miscTask(void *ignore) {
 	while(1) {
-		//Manually add each pid loop here
-		processPid(&PidARMLeft, EncARMLeft.adjustedValue);
-		processPid(&PidARMRight, EncARMRight.adjustedValue);
-		processPid(&PidARMFront, PotARMFront.value);
-		if(PidARMLeft.running) {
-			MOTARMBottomLeft.out = PidARMLeft.output;
-		}
-		if(PidARMRight.running) {
-			MOTARMBottomRight.out = PidARMRight.output;
-		}
-		if(PidARMFront.running) {
-			MOTARMFront.out = PidARMFront.output;
+
+		if(ButARMBase->state == LOW) {
+			imeReset(EncARMLeft->imeAddress);
+			imeReset(EncARMRight->imeAddress);
+			updateRicencoder(EncARMLeft);
+			updateRicencoder(EncARMRight);
 		}
 
-		printf("Setpoint: %d|%d, Raw: %d|%d, Adj: %d|%d, Out: %d|%d, Pid: %d|%d\n\r",
-				PidARMLeft.setPoint, PidARMRight.setPoint,
-				EncARMLeft.rawValue, EncARMRight.rawValue,
-				EncARMLeft.adjustedValue, EncARMRight.adjustedValue,
-				MOTARMBottomLeft.out, MOTARMBottomRight.out,
-				PidARMLeft.running, PidARMRight.running);
-//		printf("Setpoint: %d, Current: %d, Out: %d\n\r", PidARMFront.setPoint, PidARMFront.current, MOTARMFront.out);
+//		printf("EncARMFront: %d\n\r", EncARMFront->adjustedValue);
+		printf("Buttons: %d|%d|%d|%d|%d\n\r", ButConLeft->state, ButConRight->state, ButARMBase->state,
+				ButARMFrontLeft->state, ButARMFrontRight->state);
+
+//		printf("DriveTrain: %d|%d | %d|%d\n\r", MOTDTFrontLeft->out, MOTDTFrontRight->out,
+//				MOTDTBackLeft->out, MOTDTBackRight->out);
+//
+//		printf("Setpoint: %d|%d, Raw: %d|%d, Adj: %d|%d, Out: %d|%d, Pid: %d|%d\n\r",
+//				PidARMLeft->setPoint, PidARMRight->setPoint,
+//				EncARMLeft->rawValue, EncARMRight->rawValue,
+//				EncARMLeft->adjustedValue, EncARMRight->adjustedValue,
+//				MOTARMLeft->out, MOTARMRight->out,
+//				PidARMLeft->running, PidARMRight->running);
+//
+//		printf("Gyro: %d\n\r", gyro->value);
+//
 //		printf("Power: %dmV\n\r", powerLevelMain());
 		delay(20);
 	}
-	int imeCount = imeInitializeAll();
 }
