@@ -98,7 +98,7 @@ void riceBotInitialize() {
 	ButARMBase = ButDefault;
 	ButARMFrontLeft = ButDefault;
 	ButARMFrontRight = ButDefault;
-
+	
 	imeInitializeAll();
 	printf("Initialization complete\n\r");
 }
@@ -113,13 +113,11 @@ void riceBotInitialize() {
  */
 Ricemotor* initRicemotor(unsigned char port, int reflected) {
 	Ricemotor *m = malloc(sizeof(Ricemotor));
-	//	printf("New Motor at %p\n\r", m);
 	m->port = port;
 	m->out = 0;
 	m->reflected = reflected;
 
 	ricemotorVectorAppend(MOTVector, m);
-	//	printf("Motor appended; %d motors registered\n\r", MOTVector->elem_current);
 	return m;
 }
 
@@ -270,7 +268,7 @@ Ricegyro* initRicegyro(unsigned char port, unsigned short multiplier) {
 Ricesolenoid* initRicesolenoid(unsigned char port, int state, int reversed) {
 	Ricesolenoid *sol = malloc(sizeof(Ricesolenoid));
 	sol->port = port;
-	//	sol->state = reversed ? state;
+//	sol->state = reversed ? state;
 	sol->reversed = reversed;
 	ricesolenoidVectorAppend(SolVector, sol);
 	pinMode(sol->port, OUTPUT);
@@ -382,7 +380,6 @@ void getJoystickForDriveTrain() {
 void updatePid(Ricepid *pidLoop) {
 	if (pidLoop->running) {
 		pidLoop->current = *(pidLoop->sensor);
-		//		printf("Sensor: %p, Senseval: %d, Current: %d\n\r", pidLoop->sensor, *pidLoop->sensor, pidLoop->current);
 		pidLoop->error = pidLoop->setPoint - pidLoop->current;
 		pidLoop->integral += pidLoop->error;
 		pidLoop->derivative = pidLoop->lastError - pidLoop->error;
@@ -443,13 +440,6 @@ void resetRicencoder() {
 		imeReset(ricencoderVectorGet(EncVector, i)->imeAddress);
 		updateRicencoder(ricencoderVectorGet(EncVector, i));
 	}
-
-	imeReset(EncARMFront->imeAddress);
-	imeReset(EncARMLeft->imeAddress);
-	imeReset(EncARMRight->imeAddress);
-	updateRicencoder(EncARMFront);
-	updateRicencoder(EncARMLeft);
-	updateRicencoder(EncARMRight);
 }
 
 /*

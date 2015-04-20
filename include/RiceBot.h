@@ -468,5 +468,3 @@ int min(int a, int b);
 int max4(int a, int b, int c, int d);
 
 #endif /* RICEBOT_H_ */
-
-//It works!
